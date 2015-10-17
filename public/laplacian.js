@@ -1,79 +1,91 @@
 var greuler = window.greuler;
 
+transitionRadius = 10;
+speciesRadius = 25;
+
 var instance = greuler({
   target: '#graph',
   width: 480,
   height: 500,
-  data: {
-    nodes: [
-      {id: 0},
-      {id: 1},
-      {id: 2},
-      {id: 3},
-      {id: 4},
-      {id: 5}
-    ],
-    links: [
-      {source: 0, target: 1},
-      {source: 0, target: 2, directed: true},
-      {source: 0, target: 3},
-      {source: 1, target: 2, directed: true},
-      {source: 4, target: 0},
-      {source: 5, target: 0, directed: true},
-      {source: 4, target: 5}
-    ]
-  }
 }).update();
 
 var addSpecies = function (e) {
   e.preventDefault();
   var name = $(this).find("#species-name").val();
+  if (name == "") {
+    alert("Species need a name!")
+    return;
+  }
   addNode(name);
+  update();
 }
 
 var addTransition = function (e) {
   e.preventDefault();
+  addNode(null);
+  update();
+}
+
+var addNode = function (name) {
   var maxId = -1;
   instance.graph.nodes.forEach(function (node) {
     if (node.id > maxId) {
       maxId = node.id;
     }
   });
-  name = maxId + 1;
-  addNode(name);
-}
 
-var addNode = function (name) {
-  instance.graph.nodes.forEach(function (node) {
-    if (node.id == name) {
-      alert(name + " is already there! Pick a new name");
-      return;
-    }
-  });
+  var color, r;
+  if (name == null) {
+    color = "green";
+    r = 10;
+  } else {
+    r = 25;
+  }
 
-  instance.graph.addNode({id: name});
-  instance.update();
-  setTimeout(registerSelectCallback, 500);
+  instance.graph.addNode({id: maxId + 1, label: name, r: r, fill: color});
+  return maxId + 1;
 };
 
 selectedId = null;
 var selectIncidentNode = function (node) {
   selectedId = node.id;
-  d3.select("#greuler-" + selectedId).select("circle").transition().style("fill", "orange");
+  findNode(selectedId).select("circle").transition().style("fill", "orange");
   registerSelectCallback();
 };
 
+var findNode = function (nodeId) {
+  return d3.select("#greuler-" + nodeId);
+};
+
+var nodeType = function (nodeId) {
+  if (findNode(nodeId).select(".label").text() == "") {
+    return "transition";
+  } else {
+    return "species";
+  }
+};
+
 var selectDestinationNode = function (node) {
-  var edge = {source: selectedId, target: node.id, directed: true};
-  instance.graph.addEdge(edge);
+  if (nodeType(selectedId) == nodeType(node.id)) {
+    alert("Transitions can only be connected to species and vice versa");
+    return;
+  };
+
   colorDefault(selectedId);
+  addArrow(selectedId, node.id);
+  update();
   selectedId = null;
-  instance.update();
-  setTimeout(registerSelectCallback, 500);
 };
 
 var colorDefault = function (nodeId) {
-  d3.select("#greuler-" + nodeId).select("circle").transition().style("fill", "#2980B9");
+  var color;
+  if (nodeType(nodeId) == "transition") {
+    color = "green";
+  } else {
+    color = "#2980B9";
+  }
+
+  findNode(nodeId).select("circle").transition().style("fill", color);
 };
 
 var registerSelectCallback = function () {
@@ -84,13 +96,31 @@ var registerSelectCallback = function () {
   }
 };
 
-var updateGraph = function (callback) {
+var addArrow = function (src, dest) {
+  var edge = {source: src, target: dest, directed: true};
+  instance.graph.addEdge(edge);
+};
+
+var update = function () {
   instance.update();
-  callback();
+  // For some reason this doesn't work unless we wait a bit...
+  setTimeout(registerSelectCallback, 500);
 };
 
 $("#add-species").on("submit", addSpecies);
 $("#add-transition").on("submit", addTransition);
 
-// For some reason this doesn't work unless we wait a bit...
-setTimeout(registerSelectCallback, 500);
+var water, hydr, oxy, oh, firstT, secondT;
+water = addNode("H20");
+hydr = addNode("H");
+oxy = addNode("O");
+oh = addNode("OH");
+firstT = addNode(null);
+secondT = addNode(null);
+addArrow(water, firstT);
+addArrow(hydr, secondT);
+addArrow(oxy, firstT);
+addArrow(firstT, oh)
+addArrow(oh, secondT);
+addArrow(secondT, water);
+update();
