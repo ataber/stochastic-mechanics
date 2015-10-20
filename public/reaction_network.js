@@ -5,12 +5,11 @@ speciesRadius = 35;
 
 var instance = greuler({
   target: '#graph',
-  width: 1000,
-  height: 1000,
+  width: 1450,
+  height: 700,
   directed: true,
   data: {
-    linkDistance: 150,
-    avoidOverlaps: true,
+    linkDistance: 120,
   }
 });
 
