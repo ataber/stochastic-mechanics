@@ -1,13 +1,18 @@
 var greuler = window.greuler;
 
-transitionRadius = 10;
-speciesRadius = 25;
+transitionRadius = 20;
+speciesRadius = 35;
 
 var instance = greuler({
   target: '#graph',
-  width: 480,
-  height: 500,
-}).update();
+  width: 1000,
+  height: 1000,
+  directed: true,
+  data: {
+    linkDistance: 150,
+    avoidOverlaps: true,
+  }
+});
 
 var addSpecies = function (e) {
   e.preventDefault();
@@ -37,9 +42,9 @@ var addNode = function (name) {
   var color, r;
   if (name == null) {
     color = "green";
-    r = 10;
+    r = transitionRadius;
   } else {
-    r = 25;
+    r = speciesRadius;
   }
 
   instance.graph.addNode({id: maxId + 1, label: name, r: r, fill: color});
@@ -67,25 +72,30 @@ var nodeType = function (nodeId) {
 
 var selectDestinationNode = function (node) {
   if (nodeType(selectedId) == nodeType(node.id)) {
-    alert("Transitions can only be connected to species and vice versa");
+    deSelectNode();
     return;
   };
 
-  colorDefault(selectedId);
   addArrow(selectedId, node.id);
   update();
-  selectedId = null;
+  deSelectNode();
 };
 
-var colorDefault = function (nodeId) {
+var deSelectNode = function () {
+  if (selectedId == null) {
+    return;
+  }
+
   var color;
-  if (nodeType(nodeId) == "transition") {
+  if (nodeType(selectedId) == "transition") {
     color = "green";
   } else {
     color = "#2980B9";
   }
 
-  findNode(nodeId).select("circle").transition().style("fill", color);
+  findNode(selectedId).select("circle").transition().style("fill", color);
+  selectedId = null;
+  registerSelectCallback();
 };
 
 var registerSelectCallback = function () {
@@ -97,8 +107,7 @@ var registerSelectCallback = function () {
 };
 
 var addArrow = function (src, dest) {
-  var edge = {source: src, target: dest, directed: true};
-  instance.graph.addEdge(edge);
+  instance.graph.addEdge({source: src, target: dest});
 };
 
 var update = function () {
@@ -117,10 +126,18 @@ oxy = addNode("O");
 oh = addNode("OH");
 firstT = addNode(null);
 secondT = addNode(null);
-addArrow(water, firstT);
+addArrow(hydr, firstT);
 addArrow(hydr, secondT);
 addArrow(oxy, firstT);
 addArrow(firstT, oh)
 addArrow(oh, secondT);
 addArrow(secondT, water);
 update();
+
+//elmNetwork = Elm.embed(Elm.ReactionNetwork,
+//  document.getElementById("elm"),
+//  {
+//    addEdge: {sourceId: 0, destId: 1},
+//    addTransition: {id: 0, rate: 0.5},
+//    addSpecies: {id: 1, label: "h20", quantity: 1}
+//  });

@@ -1,0 +1,138 @@
+Elm.ReactionNetwork = Elm.ReactionNetwork || {};
+Elm.ReactionNetwork.make = function (_elm) {
+   "use strict";
+   _elm.ReactionNetwork = _elm.ReactionNetwork || {};
+   if (_elm.ReactionNetwork.values)
+   return _elm.ReactionNetwork.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   $moduleName = "ReactionNetwork",
+   $Basics = Elm.Basics.make(_elm),
+   $Effects = Elm.Effects.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Events = Elm.Html.Events.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $StartApp = Elm.StartApp.make(_elm);
+   var update = F2(function (msg,
+   model) {
+      return function () {
+         switch (msg.ctor)
+         {case "AddEdge":
+            return {ctor: "_Tuple2"
+                   ,_0: model
+                   ,_1: $Effects.none};
+            case "AddSpecies":
+            return {ctor: "_Tuple2"
+                   ,_0: model
+                   ,_1: $Effects.none};
+            case "AddTransition":
+            return {ctor: "_Tuple2"
+                   ,_0: model
+                   ,_1: $Effects.none};}
+         _U.badCase($moduleName,
+         "between lines 51 and 59");
+      }();
+   });
+   var AddEdge = {ctor: "AddEdge"};
+   var AddTransition = {ctor: "AddTransition"};
+   var AddSpecies = {ctor: "AddSpecies"};
+   var view = F2(function (address,
+   model) {
+      return A2($Html.div,
+      _L.fromArray([]),
+      _L.fromArray([A2($Html.button,
+                   _L.fromArray([A2($Html$Events.onClick,
+                   address,
+                   AddSpecies)]),
+                   _L.fromArray([$Html.text("-")]))
+                   ,A2($Html.div,
+                   _L.fromArray([]),
+                   _L.fromArray([$Html.text($Basics.toString(model))]))
+                   ,A2($Html.button,
+                   _L.fromArray([A2($Html$Events.onClick,
+                   address,
+                   AddTransition)]),
+                   _L.fromArray([$Html.text("-")]))]));
+   });
+   var init = {ctor: "_Tuple2"
+              ,_0: {_: {}
+                   ,edges: _L.fromArray([])
+                   ,species: _L.fromArray([])
+                   ,transitions: _L.fromArray([])}
+              ,_1: $Effects.none};
+   var app = $StartApp.start({_: {}
+                             ,init: init
+                             ,inputs: _L.fromArray([])
+                             ,update: update
+                             ,view: view});
+   var main = app.html;
+   var Edge = F2(function (a,b) {
+      return {_: {}
+             ,destId: b
+             ,sourceId: a};
+   });
+   var Transition = F2(function (a,
+   b) {
+      return {_: {},id: a,rate: b};
+   });
+   var Species = F3(function (a,
+   b,
+   c) {
+      return {_: {}
+             ,id: a
+             ,label: b
+             ,quantity: c};
+   });
+   var Model = F3(function (a,
+   b,
+   c) {
+      return {_: {}
+             ,edges: c
+             ,species: a
+             ,transitions: b};
+   });
+   var addEdge = Elm.Native.Port.make(_elm).inboundSignal("addEdge",
+   "ReactionNetwork.Edge",
+   function (v) {
+      return typeof v === "object" && "sourceId" in v && "destId" in v ? {_: {}
+                                                                         ,sourceId: typeof v.sourceId === "number" ? v.sourceId : _U.badPort("a number",
+                                                                         v.sourceId)
+                                                                         ,destId: typeof v.destId === "number" ? v.destId : _U.badPort("a number",
+                                                                         v.destId)} : _U.badPort("an object with fields `sourceId`, `destId`",
+      v);
+   });
+   var addTransition = Elm.Native.Port.make(_elm).inboundSignal("addTransition",
+   "ReactionNetwork.Transition",
+   function (v) {
+      return typeof v === "object" && "id" in v && "rate" in v ? {_: {}
+                                                                 ,id: typeof v.id === "number" ? v.id : _U.badPort("a number",
+                                                                 v.id)
+                                                                 ,rate: typeof v.rate === "number" ? v.rate : _U.badPort("a number",
+                                                                 v.rate)} : _U.badPort("an object with fields `id`, `rate`",
+      v);
+   });
+   var addSpecies = Elm.Native.Port.make(_elm).inboundSignal("addSpecies",
+   "ReactionNetwork.Species",
+   function (v) {
+      return typeof v === "object" && "id" in v && "label" in v && "quantity" in v ? {_: {}
+                                                                                     ,id: typeof v.id === "number" ? v.id : _U.badPort("a number",
+                                                                                     v.id)
+                                                                                     ,label: typeof v.label === "string" || typeof v.label === "object" && v.label instanceof String ? v.label : _U.badPort("a string",
+                                                                                     v.label)
+                                                                                     ,quantity: typeof v.quantity === "number" ? v.quantity : _U.badPort("a number",
+                                                                                     v.quantity)} : _U.badPort("an object with fields `id`, `label`, `quantity`",
+      v);
+   });
+   _elm.ReactionNetwork.values = {_op: _op
+                                 ,init: init
+                                 ,update: update
+                                 ,view: view
+                                 ,main: main
+                                 ,Model: Model};
+   return _elm.ReactionNetwork.values;
+};
