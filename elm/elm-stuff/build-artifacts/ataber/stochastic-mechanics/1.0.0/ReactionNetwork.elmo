@@ -12,52 +12,131 @@ Elm.ReactionNetwork.make = function (_elm) {
    $Basics = Elm.Basics.make(_elm),
    $Effects = Elm.Effects.make(_elm),
    $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
    $Html$Events = Elm.Html.Events.make(_elm),
+   $Json$Decode = Elm.Json.Decode.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $StartApp = Elm.StartApp.make(_elm);
+   var newSpeciesId = function (model) {
+      return function () {
+         var ids = A2($List.map,
+         function (x) {
+            return x.id;
+         },
+         model.species);
+         return function () {
+            var _v0 = $List.maximum(ids);
+            switch (_v0.ctor)
+            {case "Just": return _v0._0 + 1;
+               case "Nothing": return 1;}
+            _U.badCase($moduleName,
+            "between lines 74 and 76");
+         }();
+      }();
+   };
    var update = F2(function (msg,
    model) {
       return function () {
          switch (msg.ctor)
          {case "AddEdge":
-            return {ctor: "_Tuple2"
-                   ,_0: model
-                   ,_1: $Effects.none};
+            return function () {
+                 var newEdges = A2($Basics._op["++"],
+                 model.edges,
+                 _L.fromArray([msg._0]));
+                 return {ctor: "_Tuple2"
+                        ,_0: _U.replace([["edges"
+                                         ,newEdges]],
+                        model)
+                        ,_1: $Effects.none};
+              }();
             case "AddSpecies":
-            return {ctor: "_Tuple2"
-                   ,_0: model
-                   ,_1: $Effects.none};
+            return function () {
+                 var newSpecies = A2($Basics._op["++"],
+                 model.species,
+                 _L.fromArray([msg._0]));
+                 return {ctor: "_Tuple2"
+                        ,_0: _U.replace([["species"
+                                         ,newSpecies]],
+                        model)
+                        ,_1: $Effects.none};
+              }();
             case "AddTransition":
-            return {ctor: "_Tuple2"
-                   ,_0: model
-                   ,_1: $Effects.none};}
+            return function () {
+                 var newTransitions = A2($Basics._op["++"],
+                 model.transitions,
+                 _L.fromArray([msg._0]));
+                 return {ctor: "_Tuple2"
+                        ,_0: _U.replace([["transitions"
+                                         ,newTransitions]],
+                        model)
+                        ,_1: $Effects.none};
+              }();}
          _U.badCase($moduleName,
-         "between lines 51 and 59");
+         "between lines 52 and 66");
       }();
    });
-   var AddEdge = {ctor: "AddEdge"};
-   var AddTransition = {ctor: "AddTransition"};
-   var AddSpecies = {ctor: "AddSpecies"};
+   var AddEdge = function (a) {
+      return {ctor: "AddEdge"
+             ,_0: a};
+   };
+   var AddTransition = function (a) {
+      return {ctor: "AddTransition"
+             ,_0: a};
+   };
+   var AddSpecies = function (a) {
+      return {ctor: "AddSpecies"
+             ,_0: a};
+   };
    var view = F2(function (address,
    model) {
       return A2($Html.div,
-      _L.fromArray([]),
-      _L.fromArray([A2($Html.button,
-                   _L.fromArray([A2($Html$Events.onClick,
-                   address,
-                   AddSpecies)]),
-                   _L.fromArray([$Html.text("-")]))
+      _L.fromArray([$Html$Attributes.$class("row")]),
+      _L.fromArray([A2($Html.div,
+                   _L.fromArray([$Html$Attributes.$class("six columns")]),
+                   _L.fromArray([A2($Html.form,
+                   _L.fromArray([$Html$Attributes.id("add-species")
+                                ,A4($Html$Events.onWithOptions,
+                                "submit",
+                                {_: {}
+                                ,preventDefault: true
+                                ,stopPropagation: false},
+                                $Json$Decode.value,
+                                function (x) {
+                                   return A2($Signal.message,
+                                   address,
+                                   AddSpecies({_: {}
+                                              ,id: newSpeciesId(model)
+                                              ,label: "abc"
+                                              ,quantity: 0}));
+                                })]),
+                   _L.fromArray([A2($Html.input,
+                                _L.fromArray([$Html$Attributes.type$("text")
+                                             ,$Html$Attributes.id("species-name")
+                                             ,$Html$Attributes.placeholder("New Species Name")
+                                             ,$Html$Attributes.style(_L.fromArray([{ctor: "_Tuple2"
+                                                                                   ,_0: "margin-right"
+                                                                                   ,_1: "5px"}]))]),
+                                _L.fromArray([]))
+                                ,A2($Html.input,
+                                _L.fromArray([$Html$Attributes.type$("submit")
+                                             ,$Html$Attributes.$class("button")
+                                             ,$Html$Attributes.value("Add New Species")]),
+                                _L.fromArray([]))
+                                ,A2($Html.div,
+                                _L.fromArray([]),
+                                _L.fromArray([$Html.text($Basics.toString(model))]))]))]))
                    ,A2($Html.div,
-                   _L.fromArray([]),
-                   _L.fromArray([$Html.text($Basics.toString(model))]))
-                   ,A2($Html.button,
-                   _L.fromArray([A2($Html$Events.onClick,
-                   address,
-                   AddTransition)]),
-                   _L.fromArray([$Html.text("-")]))]));
+                   _L.fromArray([$Html$Attributes.$class("six columns")]),
+                   _L.fromArray([A2($Html.form,
+                   _L.fromArray([$Html$Attributes.id("add-transition")]),
+                   _L.fromArray([A2($Html.input,
+                   _L.fromArray([$Html$Attributes.type$("submit")
+                                ,$Html$Attributes.$class("button")
+                                ,$Html$Attributes.value("Add New Transition")]),
+                   _L.fromArray([]))]))]))]));
    });
    var init = {ctor: "_Tuple2"
               ,_0: {_: {}

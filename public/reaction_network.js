@@ -133,10 +133,11 @@ addArrow(oh, secondT);
 addArrow(secondT, water);
 update();
 
-//elmNetwork = Elm.embed(Elm.ReactionNetwork,
-//  document.getElementById("elm"),
-//  {
-//    addEdge: {sourceId: 0, destId: 1},
-//    addTransition: {id: 0, rate: 0.5},
-//    addSpecies: {id: 1, label: "h20", quantity: 1}
-//  });
+elmNetwork = Elm.embed(Elm.ReactionNetwork,
+  document.getElementById("elm"),
+  {
+    addEdge: {sourceId: 0, destId: 1},
+    addTransition: {id: 0, rate: 0.5},
+    addSpecies: {id: 1, label: "h20", quantity: 1}
+  });
+elmNetwork.ports.addEdge.send({sourceId: 0, destId: 1});
