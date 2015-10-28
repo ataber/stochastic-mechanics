@@ -1,8 +1,5 @@
 var greuler = window.greuler;
 
-transitionRadius = 20;
-speciesRadius = 35;
-
 var instance = greuler({
   target: '#graph',
   width: 1450,
@@ -16,17 +13,22 @@ var instance = greuler({
 var submitSpecies = function (e) {
   e.preventDefault();
   var name = $(this).find("#species-name").val();
-  addSpecies(name);
+  var quantity = $(this).find("#species-quantity").val();
+  addSpecies(name, quantity);
 }
 
-var addSpecies = function (name) {
+var addSpecies = function (name, quantity) {
+  if (quantity == null) {
+    quantity = 0;
+  }
+
   if (name == "") {
     alert("Species need a name!")
     return;
   }
   var newId = getNextId();
-  instance.graph.addNode({id: newId, label: name, r: speciesRadius, topRightLabel: ""});
-  update();
+  instance.graph.addNode({id: newId, label: name, r: 35, topRightLabel: quantity});
+  updateWithCallbacks();
   return newId;
 }
 
@@ -38,8 +40,9 @@ var submitTransition = function (e) {
 
 var addTransition = function (rate) {
   var newId = getNextId();
-  instance.graph.addNode({id: newId, label: "", r: transitionRadius, fill: "green", topRightLabel: rate});
-  update();
+  instance.graph.addNode({id: newId, label: "", r: 20, fill: "green", topRightLabel: rate});
+  updateWithCallbacks();
+  transitions.push({id: newId, rate: rate})
   return newId;
 }
 
@@ -98,7 +101,7 @@ var removeSelectedNode = function () {
 
   var nodeId = deSelectNode();
   instance.graph.removeNode({id: nodeId});
-  update();
+  updateWithCallbacks();
 }
 
 var deSelectNode = function () {
@@ -120,7 +123,7 @@ var deSelectNode = function () {
   var returnId = selectedId;
   selectedId = null;
 
-  update();
+  updateWithCallbacks();
   return returnId;
 };
 
@@ -137,29 +140,135 @@ var addArrow = function (src, dest) {
   instance.graph.addEdge({source: src, target: dest});
 };
 
-var update = function () {
+function updateWithCallbacks () {
   instance.update();
   // For some reason this doesn't work unless we wait a bit...
   setTimeout(registerSelectCallback, 500);
 };
 
+reactionInterval = null;
+currentStep = 0;
+transitions = [];
+function startReactions () {
+  reactionInterval = setInterval(performReactions, 100);
+  $("#start-reactions").val("Stop Reactions");
+  transitions.map(function (transition) {
+    transition.lastFired = 0; // Reset the firing timing
+    transition.stepsTilFiring = (-Math.log(Math.random())/transition.rate) * 3000;
+  });
+  currentStep = 0; // Reset current timestep
+};
+
+function performReactions () {
+  currentStep = currentStep + 1;
+  transitions.map(function (transition) {
+    if (currentStep - transition.lastFired > transition.stepsTilFiring) {
+      fireReaction(transition);
+    }
+  });
+};
+
+function fireReaction (transition) {
+  transition.lastFired = currentStep;
+  transition.stepsTilFiring = (-Math.log(Math.random())/transition.rate) * 3000;
+
+  incoming = instance.graph.getIncomingEdges({id: transition.id});
+  reactionRequirements = groupQuantitiesByNode(incoming.map(function(edge) {
+    return { id: edge.source.id, quantity: 1 };
+  }));
+
+  if (!checkSufficientReactants(reactionRequirements)) {
+    return;
+  }
+
+  outgoing = instance.graph.getOutgoingEdges({id: transition.id});
+  productOutputs = groupQuantitiesByNode(outgoing.map(function(edge) {
+    return { id: edge.target.id, quantity: 1 };
+  }));
+
+  reactionRequirements.forEach(function (requirement) {
+    var reactant = instance.graph.getNode({id: requirement.id});
+    reactant.topRightLabel = reactant.topRightLabel - requirement.quantity;
+  });
+  productOutputs.forEach(function (productOutput) {
+    var product = instance.graph.getNode({id: productOutput.id})
+    product.topRightLabel = product.topRightLabel + productOutput.quantity;
+  });
+  instance.update({ skipLayout: true });
+
+  instance.selector.traverseIncomingEdges(
+    { id: transition.id },
+    { keepStroke: false }
+  );
+
+  instance.selector.highlightNode({id: transition.id});
+
+  setTimeout(function () {
+    instance.selector.traverseOutgoingEdges(
+      { id: transition.id },
+      { keepStroke: false }
+    );
+  }, 500);
+};
+
+function checkSufficientReactants (reactionRequirements) {
+  var returnValue = true;
+  reactionRequirements.forEach(function (requirement) {
+    if (instance.graph.getNode({id: requirement.id}).topRightLabel < requirement.quantity) {
+      returnValue = false;
+    }
+  });
+
+  return returnValue;
+};
+
+function groupQuantitiesByNode (orig) {
+    var newArr = [],
+        nodes = {},
+        newItem, i, j, cur;
+    for (i = 0, j = orig.length; i < j; i++) {
+        cur = orig[i];
+        if (!(cur.id in nodes)) {
+          nodes[cur.id] = {id: cur.id, quantity: 0};
+          newArr.push(nodes[cur.id]);
+        }
+        nodes[cur.id].quantity = nodes[cur.id].quantity + 1;
+    }
+    return newArr;
+}
+
+function stopReactions () {
+  clearInterval(reactionInterval);
+  reactionInterval = null;
+  $("#start-reactions").val("Start Reactions");
+};
+
+function toggleReactions () {
+  if (reactionInterval == null) {
+    startReactions();
+  } else {
+    stopReactions();
+  }
+};
+
 $("#add-species").on("submit", submitSpecies);
 $("#add-transition").on("submit", submitTransition);
+$("#start-reactions").on("click", toggleReactions);
 
 var water, hydr, oxy, oh, firstT, secondT;
-water = addSpecies("H20");
-hydr = addSpecies("H");
-oxy = addSpecies("O");
-oh = addSpecies("OH");
-firstT = addTransition(5);
-secondT = addTransition(4);
+water = addSpecies("H20", 100);
+hydr = addSpecies("H", 50);
+oxy = addSpecies("O", 50);
+oh = addSpecies("OH", 40);
+firstT = addTransition(80);
+secondT = addTransition(200);
 addArrow(hydr, firstT);
 addArrow(hydr, secondT);
 addArrow(oxy, firstT);
 addArrow(firstT, oh)
 addArrow(oh, secondT);
 addArrow(secondT, water);
-update();
+updateWithCallbacks();
 
 //elmNetwork = Elm.embed(Elm.ReactionNetwork,
 //  document.getElementById("elm"),

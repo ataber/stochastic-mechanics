@@ -11,20 +11,29 @@
 <div class="container">
 <h3>Reaction Network Dynamics</h3>
 <p>Blue nodes represent chemical species, while green nodes represent reactions.</p>
-<em>Click on one color of node to select it, and click on another color of node to draw a new edge.</em>
+<em>Species can be connected with reactions and vice versa</em>
 <div class="row">
   <div class="row">
-    <div class="six columns">
+    <div class="eight columns">
       <form id="add-species">
         <input type="text" id="species-name" placeholder="New Species Name"></input>
+        <input type="number" min="0" id="species-quantity" placeholder="Initial Quantity"></input>
         <input type="submit" class="button" value="Add New Species"></input>
       </form>
     </div>
-    <div class="six columns">
+  </div>
+  <div class="row">
+    <div class="eight columns">
       <form id="add-transition">
+        <label for="transition-rate">Rate := How many times the reaction will fire per minute</label>
         <input type="number" min="0" id="transition-rate" placeholder="Reaction Rate"></input>
         <input type="submit" class="button" value="Add New Reaction"></input>
       </form>
+    </div>
+  </div>
+  <div class="row">
+    <div class="eight columns">
+      <input type="button" id="start-reactions" class="button-primary" value="Start Reactions"></input>
     </div>
   </div>
   <div class="row">
@@ -33,7 +42,6 @@
       </div>
     </div>
   </div>
-</div>
 </div>
 <div id="graph">
 </div>
