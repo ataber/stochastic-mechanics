@@ -13,47 +13,55 @@ var instance = greuler({
   }
 });
 
-var addSpecies = function (e) {
+var submitSpecies = function (e) {
   e.preventDefault();
   var name = $(this).find("#species-name").val();
+  addSpecies(name);
+}
+
+var addSpecies = function (name) {
   if (name == "") {
     alert("Species need a name!")
     return;
   }
-  addNode(name);
+  var newId = getNextId();
+  instance.graph.addNode({id: newId, label: name, r: speciesRadius, topRightLabel: ""});
   update();
+  return newId;
 }
 
-var addTransition = function (e) {
+var submitTransition = function (e) {
   e.preventDefault();
-  addNode(null);
-  update();
+  var rate = $(this).find("#transition-rate").val();
+  addTransition(rate);
 }
 
-var addNode = function (name) {
-  var maxId = -1;
+var addTransition = function (rate) {
+  var newId = getNextId();
+  instance.graph.addNode({id: newId, label: "", r: transitionRadius, fill: "green", topRightLabel: rate});
+  update();
+  return newId;
+}
+
+var getNextId = function () {
+  var maxId = 0;
+
   instance.graph.nodes.forEach(function (node) {
     if (node.id > maxId) {
       maxId = node.id;
     }
   });
 
-  var color, r;
-  if (name == null) {
-    color = "green";
-    r = transitionRadius;
-  } else {
-    r = speciesRadius;
-  }
-
-  instance.graph.addNode({id: maxId + 1, label: name, r: r, fill: color});
   return maxId + 1;
-};
+}
 
 selectedId = null;
 var selectIncidentNode = function (node) {
   selectedId = node.id;
-  findNode(selectedId).select("circle").transition().style("fill", "orange");
+  findNode(selectedId).select("circle").transition().style("fill", "orange")
+  var selected = instance.graph.getNode({ id: node.id })
+  selected.topLeftLabel = "X"
+  instance.update({ skipLayout: true });
   registerSelectCallback();
 };
 
@@ -76,9 +84,18 @@ var selectDestinationNode = function (node) {
   };
 
   addArrow(selectedId, node.id);
-  update();
   deSelectNode();
 };
+
+var removeSelectedNode = function () {
+  if (selectedId == null) {
+    return;
+  }
+
+  var nodeId = deSelectNode();
+  instance.graph.removeNode({id: nodeId});
+  update();
+}
 
 var deSelectNode = function () {
   if (selectedId == null) {
@@ -92,16 +109,23 @@ var deSelectNode = function () {
     color = "#2980B9";
   }
 
-  findNode(selectedId).select("circle").transition().style("fill", color);
+  findNode(selectedId).select("circle").transition().style("fill", color)
+  var selected = instance.graph.getNode({ id: selectedId });
+  selected.topLeftLabel = "";
+
+  var returnId = selectedId;
   selectedId = null;
-  registerSelectCallback();
+
+  update();
+  return returnId;
 };
 
 var registerSelectCallback = function () {
   if (selectedId != null) {
-    d3.selectAll(".node").on("click", selectDestinationNode);
+    d3.selectAll("circle").on("click", selectDestinationNode);
+    d3.selectAll(".outer-top-left").on("click", removeSelectedNode);
   } else {
-    d3.selectAll(".node").on("click", selectIncidentNode);
+    d3.selectAll("circle").on("click", selectIncidentNode);
   }
 };
 
@@ -115,16 +139,16 @@ var update = function () {
   setTimeout(registerSelectCallback, 500);
 };
 
-$("#add-species").on("submit", addSpecies);
-$("#add-transition").on("submit", addTransition);
+$("#add-species").on("submit", submitSpecies);
+$("#add-transition").on("submit", submitTransition);
 
 var water, hydr, oxy, oh, firstT, secondT;
-water = addNode("H20");
-hydr = addNode("H");
-oxy = addNode("O");
-oh = addNode("OH");
-firstT = addNode(null);
-secondT = addNode(null);
+water = addSpecies("H20");
+hydr = addSpecies("H");
+oxy = addSpecies("O");
+oh = addSpecies("OH");
+firstT = addTransition(5);
+secondT = addTransition(4);
 addArrow(hydr, firstT);
 addArrow(hydr, secondT);
 addArrow(oxy, firstT);
