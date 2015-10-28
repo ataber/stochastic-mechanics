@@ -78,6 +78,10 @@ var nodeType = function (nodeId) {
 };
 
 var selectDestinationNode = function (node) {
+  if (selectedId == null) {
+    return;
+  }
+
   if (nodeType(selectedId) == nodeType(node.id)) {
     deSelectNode();
     return;
@@ -122,10 +126,10 @@ var deSelectNode = function () {
 
 var registerSelectCallback = function () {
   if (selectedId != null) {
-    d3.selectAll("circle").on("click", selectDestinationNode);
+    d3.selectAll(".node").on("click", selectDestinationNode);
     d3.selectAll(".outer-top-left").on("click", removeSelectedNode);
   } else {
-    d3.selectAll("circle").on("click", selectIncidentNode);
+    d3.selectAll(".node").on("click", selectIncidentNode);
   }
 };
 
