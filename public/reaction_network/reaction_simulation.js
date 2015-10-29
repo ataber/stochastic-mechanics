@@ -77,9 +77,9 @@ var ReactionSimulation = (function () {
     return newArr;
   }
 
-  reactionInterval = null;
-  currentStep = 0;
-  transitions = [];
+  var reactionInterval = null;
+  var currentStep = 0;
+  var transitions = [];
 
   function toggleReactions () {
     if (reactionInterval == null) {
@@ -92,15 +92,28 @@ var ReactionSimulation = (function () {
         transition.stepsTilFiring = (-Math.log(Math.random())/transition.rate) * 3000;
       });
 
+      GraphManipulation.removeCallbacks(); // No changing the graph while it's reacting, for UI sake
+
       currentStep = 0; // Reset current timestep
     } else {
       clearInterval(reactionInterval);
       reactionInterval = null;
+      GraphManipulation.registerCallbacks();
       $("#start-reactions").val("Start Reactions");
     }
   };
 
+  function addTransition (props) {
+    transitions.push(props);
+  };
+
+  function resetTransitions () {
+    transitions = [];
+  };
+
   return {
-    toggleReactions: toggleReactions
+    toggleReactions: toggleReactions,
+    addTransition: addTransition,
+    resetTransitions: resetTransitions,
   }
 })();

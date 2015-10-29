@@ -31,7 +31,7 @@ var GraphManipulation = (function () {
     var newId = getNextId();
     instance.graph.addNode({id: newId, label: "", r: 20, fill: "green", topRightLabel: rate});
     updateWithCallbacks();
-    transitions.push({id: newId, rate: rate})
+    ReactionSimulation.addTransition({id: newId, rate: rate});
     return newId;
   }
 
@@ -119,24 +119,25 @@ var GraphManipulation = (function () {
     instance.graph.addEdge({source: src, target: dest});
   };
 
-  function updateWithCallbacks (skipLayout) {
-    if (skipLayout == null) {
-      skipLayout = false;
+  function registerCallbacks () {
+    if (selectedId != null) {
+      d3.select("svg").on("click", deSelectNode);
+      d3.selectAll(".node").on("click", selectDestinationNode);
+      d3.selectAll(".outer-top-left").on("click", removeSelectedNode);
+    } else {
+      d3.select("svg").on("click", function () {});
+      d3.selectAll(".node").on("click", selectIncidentNode);
     }
+  };
 
+  function removeCallbacks () {
+    d3.selectAll(".node").on("click", function () {});
+  };
+
+  function updateWithCallbacks (skipLayout) {
     instance.update({skipLayout: skipLayout});
-
     // For some reason this doesn't work unless we wait a bit...
-    setTimeout(function () {
-      if (selectedId != null) {
-        d3.select("svg").on("click", deSelectNode);
-        d3.selectAll(".node").on("click", selectDestinationNode);
-        d3.selectAll(".outer-top-left").on("click", removeSelectedNode);
-      } else {
-        d3.select("svg").on("click", function () {});
-        d3.selectAll(".node").on("click", selectIncidentNode);
-      }
-    }, 500);
+    setTimeout(registerCallbacks, 500);
   };
 
   return {
@@ -145,6 +146,8 @@ var GraphManipulation = (function () {
     addSpecies: addSpecies,
     addTransition: addTransition,
     addArrow: addArrow,
-    updateWithCallbacks: updateWithCallbacks
+    updateWithCallbacks: updateWithCallbacks,
+    registerCallbacks: registerCallbacks,
+    removeCallbacks: removeCallbacks,
   };
 })();

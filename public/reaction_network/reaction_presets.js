@@ -27,15 +27,18 @@ var ReactionPresets = (function () {
 
   function changeReaction (functionName) {
     clearGraph();
-    console.log(functionName)
-    presets[functionName]();
-    GraphManipulation.updateWithCallbacks();
+    setTimeout(function () {
+      presets[functionName]();
+      GraphManipulation.updateWithCallbacks();
+    }, 500);
   };
 
   function clearGraph() {
     instance.graph.removeNodesByFn(function (n) {
       return true;
     });
+
+    ReactionSimulation.resetTransitions();
 
     GraphManipulation.updateWithCallbacks();
   };
