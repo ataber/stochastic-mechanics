@@ -12,27 +12,18 @@
 <h3>Reaction Network Dynamics</h3>
 <p>Blue nodes represent chemical species, while green nodes represent reactions.</p>
 <em>Species can be connected with reactions and vice versa</em>
+<hr />
 <div class="row">
   <div class="row">
     <div class="eight columns">
-      <form id="add-species">
-        <input type="text" id="species-name" placeholder="New Species Name"></input>
-        <input type="number" min="0" id="species-quantity" placeholder="Initial Quantity"></input>
-        <input type="submit" class="button" value="Add New Species"></input>
-      </form>
+      <label for="preset-select">Network Presets:</label>
+      <select id="preset-select">
+        <option value="water">Formation of Water</option>
+        <option value="sodiumChloride">Formation of NaCl</option>
+        <option value="lotkaVolterra">Lotka-Volterra model</option>
+      </select>
     </div>
-  </div>
-  <div class="row">
-    <div class="eight columns">
-      <form id="add-transition">
-        <label for="transition-rate">Rate := How many times the reaction will fire per minute</label>
-        <input type="number" min="0" id="transition-rate" placeholder="Reaction Rate"></input>
-        <input type="submit" class="button" value="Add New Reaction"></input>
-      </form>
-    </div>
-  </div>
-  <div class="row">
-    <div class="eight columns">
+    <div class="four columns">
       <input type="button" id="start-reactions" class="button-primary" value="Start Reactions"></input>
     </div>
   </div>
@@ -45,7 +36,25 @@
 </div>
 <div id="graph">
 </div>
-<script src="reaction_network.js"></script>
+<div class="row">
+  <div class="six columns">
+    <form id="add-species">
+      <input type="text" id="species-name" placeholder="New Species Name"></input>
+      <input type="number" min="0" id="species-quantity" placeholder="Initial Quantity"></input>
+      <input type="submit" class="button" value="Add New Species"></input>
+    </form>
+  </div>
+  <div class="six columns">
+    <form id="add-transition">
+      <input type="number" min="0" id="transition-rate" placeholder="Reaction Rate"></input>
+      <input type="submit" class="button" value="Add New Reaction"></input>
+    </form>
+  </div>
+</div>
+<script src="reaction_network/graph_manipulation.js"></script>
+<script src="reaction_network/reaction_presets.js"></script>
+<script src="reaction_network/reaction_simulation.js"></script>
+<script src="reaction_network/main.js"></script>
 </body>
 </html>
 

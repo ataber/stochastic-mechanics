@@ -64,8 +64,7 @@ var selectIncidentNode = function (node) {
   findNode(selectedId).select("circle").transition().style("fill", "orange")
   var selected = instance.graph.getNode({ id: node.id })
   selected.topLeftLabel = "X"
-  instance.update({ skipLayout: true });
-  registerSelectCallback();
+  updateWithCallbacks(true);
 };
 
 var findNode = function (nodeId) {
@@ -123,40 +122,32 @@ var deSelectNode = function () {
   var returnId = selectedId;
   selectedId = null;
 
-  updateWithCallbacks();
+  updateWithCallbacks(true);
   return returnId;
-};
-
-var registerSelectCallback = function () {
-  if (selectedId != null) {
-    d3.selectAll(".node").on("click", selectDestinationNode);
-    d3.selectAll(".outer-top-left").on("click", removeSelectedNode);
-  } else {
-    d3.selectAll(".node").on("click", selectIncidentNode);
-  }
 };
 
 var addArrow = function (src, dest) {
   instance.graph.addEdge({source: src, target: dest});
 };
 
-function updateWithCallbacks () {
-  instance.update();
-  // For some reason this doesn't work unless we wait a bit...
-  setTimeout(registerSelectCallback, 500);
-};
+function updateWithCallbacks (skipLayout) {
+  if (skipLayout == null) {
+    skipLayout = false;
+  }
 
-reactionInterval = null;
-currentStep = 0;
-transitions = [];
-function startReactions () {
-  reactionInterval = setInterval(performReactions, 100);
-  $("#start-reactions").val("Stop Reactions");
-  transitions.map(function (transition) {
-    transition.lastFired = 0; // Reset the firing timing
-    transition.stepsTilFiring = (-Math.log(Math.random())/transition.rate) * 3000;
-  });
-  currentStep = 0; // Reset current timestep
+  instance.update({skipLayout: skipLayout});
+
+  // For some reason this doesn't work unless we wait a bit...
+  setTimeout(function () {
+    if (selectedId != null) {
+      d3.select("svg").on("click", deSelectNode);
+      d3.selectAll(".node").on("click", selectDestinationNode);
+      d3.selectAll(".outer-top-left").on("click", removeSelectedNode);
+    } else {
+      d3.select("svg").on("click", function () {});
+      d3.selectAll(".node").on("click", selectIncidentNode);
+    }
+  }, 500);
 };
 
 function performReactions () {
@@ -201,7 +192,7 @@ function fireReaction (transition) {
     { keepStroke: false }
   );
 
-  instance.selector.highlightNode({id: transition.id});
+  setTimeout(function () { instance.selector.highlightNode({id: transition.id})}, 200);
 
   setTimeout(function () {
     instance.selector.traverseOutgoingEdges(
@@ -223,31 +214,39 @@ function checkSufficientReactants (reactionRequirements) {
 };
 
 function groupQuantitiesByNode (orig) {
-    var newArr = [],
-        nodes = {},
-        newItem, i, j, cur;
-    for (i = 0, j = orig.length; i < j; i++) {
-        cur = orig[i];
-        if (!(cur.id in nodes)) {
-          nodes[cur.id] = {id: cur.id, quantity: 0};
-          newArr.push(nodes[cur.id]);
-        }
-        nodes[cur.id].quantity = nodes[cur.id].quantity + 1;
-    }
-    return newArr;
+  var newArr = [],
+      nodes = {},
+      newItem, i, j, cur;
+  for (i = 0, j = orig.length; i < j; i++) {
+      cur = orig[i];
+      if (!(cur.id in nodes)) {
+        nodes[cur.id] = {id: cur.id, quantity: 0};
+        newArr.push(nodes[cur.id]);
+      }
+      nodes[cur.id].quantity = nodes[cur.id].quantity + 1;
+  }
+  return newArr;
 }
 
-function stopReactions () {
-  clearInterval(reactionInterval);
-  reactionInterval = null;
-  $("#start-reactions").val("Start Reactions");
-};
-
+reactionInterval = null;
+currentStep = 0;
+transitions = [];
 function toggleReactions () {
   if (reactionInterval == null) {
-    startReactions();
+    reactionInterval = setInterval(performReactions, 100);
+
+    $("#start-reactions").val("Stop Reactions");
+
+    transitions.map(function (transition) {
+      transition.lastFired = 0; // Reset the firing timing
+      transition.stepsTilFiring = (-Math.log(Math.random())/transition.rate) * 3000;
+    });
+
+    currentStep = 0; // Reset current timestep
   } else {
-    stopReactions();
+    clearInterval(reactionInterval);
+    reactionInterval = null;
+    $("#start-reactions").val("Start Reactions");
   }
 };
 
@@ -269,11 +268,3 @@ addArrow(firstT, oh)
 addArrow(oh, secondT);
 addArrow(secondT, water);
 updateWithCallbacks();
-
-//elmNetwork = Elm.embed(Elm.ReactionNetwork,
-//  document.getElementById("elm"),
-//  {
-//    addEdge: {sourceId: 0, destId: 1},
-//    addTransition: {id: 0, rate: 0.5},
-//    addSpecies: {id: 1, label: "h20", quantity: 1}
-//  });
