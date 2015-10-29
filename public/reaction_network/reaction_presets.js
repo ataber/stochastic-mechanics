@@ -64,6 +64,22 @@ var ReactionPresets = (function () {
 
   function lotkaVolterra () {
     var pred, prey;
+    var arr = addSpecies(["Predator", "Prey"]);
+    pred = arr[0];
+    prey = arr[1];
+    t1 = addTransition(40);
+    t2 = addTransition(50);
+    t3 = addTransition(60);
+    addArrows([
+      [prey, t1],
+      [t1, prey],
+      [t1, prey],
+      [prey, t2],
+      [pred, t2],
+      [t2, pred],
+      [t2, pred],
+      [pred, t3]
+    ]);
   };
 
   function sodiumChloride () {
