@@ -10,7 +10,7 @@ var ReactionPresets = (function () {
 
   function addSpecies (nameArr) {
     return nameArr.map(function (name) {
-      return GraphManipulation.addSpecies(name, Math.round(Math.random() * 100));
+      return GraphManipulation.addSpecies(name, 100);
     });
   };
 
