@@ -2,14 +2,17 @@ var ReactionSimulation = (function () {
   function performReactions () {
     currentStep = currentStep + 1;
     transitions.map(function (transition) {
-      if (Math.random() < (calculateFiringProbability(transition))) {
-        fireReaction(transition);
+      if (currentStep - transition.lastFired > transition.stepsTilFired) {
+        if (checkSufficientReactants(transition.id)) {
+          fireReaction(transition);
+        }
       };
     });
   };
 
   function fireReaction (transition) {
     transition.lastFired = currentStep;
+    calculateFiringTime(transition);
 
     // Update quantities
 
@@ -35,13 +38,11 @@ var ReactionSimulation = (function () {
       { keepStroke: false }
     );
 
-    //setTimeout(function () { instance.selector.highlightNode({id: transition.id, duration: 500})}, 300);
-
     setTimeout(function () {
       instance.selector.traverseOutgoingEdges(
         { id: transition.id },
         { keepStroke: false }
-    )}, 300);
+    )}, 200);
   };
 
   function checkSufficientReactants (transitionId) {
@@ -75,6 +76,7 @@ var ReactionSimulation = (function () {
   var reactionInterval = null;
   var currentStep = 0;
   var transitions = [];
+  var reactionSpeed = 120;
 
   function toggleReactions () {
     if (reactionInterval == null) {
@@ -84,6 +86,7 @@ var ReactionSimulation = (function () {
 
       transitions.map(function (transition) {
         transition.lastFired = currentStep;
+        calculateFiringTime(transition);
       });
 
       GraphManipulation.removeCallbacks(); // No changing the graph while it's reacting, for UI sake
@@ -97,24 +100,17 @@ var ReactionSimulation = (function () {
     }
   };
 
-  function calculateFiringProbability (transition) {
-    if (!checkSufficientReactants(transition.id)) {
-      return 0;
-    }
-
-    // Rate depends on concentration of reactants
+  function calculateFiringTime (transition) {
     var reactants = getReactants(transition.id);
     var reactantConcentrations = reactants.map(function (node) {
-      return node.topRightLabel;
+      return node.topRightLabel / 100;
     });
 
-    var perMinuteRate = transition.rate / 120; // 120 because each step is one half second long.
-    reactantConcentrations.push(perMinuteRate);
-    var rate = reactantConcentrations.reduce(function (p,c) {
+    var concentrations = reactantConcentrations.reduce(function (p,c) {
       return p * c;
     });
 
-    return (-Math.log(Math.random())/rate) * 100;
+    transition.stepsTilFired = -Math.log(Math.random())/(transition.rate * concentrations) * reactionSpeed;
   };
 
   function addTransition (props) {

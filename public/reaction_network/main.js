@@ -5,7 +5,7 @@ var instance = greuler({
   width: 1450,
   height: 700,
   directed: true,
-  animationTime: 500,
+  animationTime: 300,
   data: {
     linkDistance: 120,
   }
@@ -14,6 +14,6 @@ var instance = greuler({
 $("#add-species").on("submit", GraphManipulation.submitSpecies);
 $("#add-transition").on("submit", GraphManipulation.submitTransition);
 $("#start-reactions").on("click", ReactionSimulation.toggleReactions);
-$("#preset-select").on("change", ReactionPresets.submitReaction)
+$("#preset-select").on("change", ReactionPresets.submitReaction);
 
 ReactionPresets.changeReaction("water");

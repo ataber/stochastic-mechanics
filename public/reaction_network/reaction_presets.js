@@ -68,9 +68,9 @@ var ReactionPresets = (function () {
     var arr = addSpecies(["Predator", "Prey"]);
     pred = arr[0];
     prey = arr[1];
-    t1 = addTransition(4);
-    t2 = addTransition(5);
-    t3 = addTransition(6);
+    t1 = addTransition(18);
+    t2 = addTransition(8);
+    t3 = addTransition(16);
     addArrows([
       [prey, t1],
       [t1, prey],
@@ -115,9 +115,9 @@ var ReactionPresets = (function () {
     hcl = arr[5];
     h2o = arr[6];
     nacl = arr[7];
-    t1 = addTransition(5);
+    t1 = addTransition(15);
     t2 = addTransition(10);
-    t3 = addTransition(4);
+    t3 = addTransition(8);
     addArrows([
       [c, t1],
       [o2, t1],
