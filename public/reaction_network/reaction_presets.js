@@ -23,6 +23,7 @@ var ReactionPresets = (function () {
     water: water,
     sodiumChloride: sodiumChloride,
     lotkaVolterra: lotkaVolterra,
+    sirsModel: sirsModel,
   }
 
   function changeReaction (functionName) {
@@ -79,6 +80,27 @@ var ReactionPresets = (function () {
       [t2, pred],
       [t2, pred],
       [pred, t3]
+    ]);
+  };
+
+  function sirsModel () {
+    var sus, inf, res;
+    var arr = addSpecies(["Susceptible", "Infected", "Resistant"])
+    sus = arr[0];
+    inf = arr[1];
+    res = arr[2];
+    infection = addTransition(10);
+    recovery = addTransition(10);
+    loseRes = addTransition(10);
+    addArrows([
+      [sus, infection],
+      [infection, inf],
+      [infection, inf],
+      [inf, recovery],
+      [inf, infection],
+      [recovery, res],
+      [res, loseRes],
+      [loseRes, sus],
     ]);
   };
 
