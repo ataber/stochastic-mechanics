@@ -4,7 +4,6 @@
 <script src="cola.v3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
 <script src="greuler.js"></script>
-<script src="elm.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css"></link>
 </head>
 <body>
@@ -40,17 +39,17 @@
   </div>
   <div class="six columns">
     <form id="add-transition">
-      <input type="number" min="0" id="transition-rate" placeholder="Reaction Rate"></input>
+      <input type="number" min="1" id="transition-rate" placeholder="Reaction Rate"></input>
       <input type="submit" class="button" value="Add New Reaction"></input>
     </form>
   </div>
 </div>
+<footer>
+Made by <a href="https://github.com/ataber/stochastic-mechanics">ataber</a>
 <script src="reaction_network/graph_manipulation.js"></script>
 <script src="reaction_network/reaction_presets.js"></script>
 <script src="reaction_network/reaction_simulation.js"></script>
 <script src="reaction_network/main.js"></script>
-<footer>
-Made by <a href="https://github.com/ataber/stochastic-mechanics">Andrew Taber</a>
 </footer>
 </body>
 </html>
