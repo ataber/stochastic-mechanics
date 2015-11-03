@@ -5,6 +5,7 @@ var instance = greuler({
   width: 1450,
   height: 700,
   directed: true,
+  animationTime: 500,
   data: {
     linkDistance: 120,
   }
