@@ -1,0 +1,32 @@
+{
+  "name": "stochastic-mechanics",
+  "version": "1.0.0",
+  "description": "Stochastic Mechanics of Networks in the Browser",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "lint": "eslint src",
+    "build": "BUILD_ENV=debug webpack -p",
+    "build_dev": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ataber/stochastic-mechanics.git"
+  },
+  "author": "Andrew Taber",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ataber/stochastic-mechanics/issues"
+  },
+  "homepage": "https://github.com/ataber/stochastic-mechanics#readme",
+  "dependencies": {
+    "babel-core": "^6.5.2",
+    "browserify": "^13.0.0",
+    "d3": "^3.5.16",
+    "eslint": "^2.2.0",
+    "greuler": "^0.5.5",
+    "jquery": "^2.2.1",
+    "webpack": "^1.12.14",
+    "webpack-dev-server": "^1.14.1"
+  }
+}
